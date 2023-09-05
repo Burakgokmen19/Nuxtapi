@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Nette\Schema\ValidationException;
 
 class AuthController extends Controller
@@ -27,7 +28,23 @@ class AuthController extends Controller
             'token'=>$token
         ]);
     }
-    public function register(Request $request){
-    
+    public function register(Request $request)
+    {
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+
+        $user = new User;
+        $user->name = 'aynı'; // Burada kullanıcı adını istediğiniz bir değerle değiştirin
+        $user->email = $request->input('email');
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+
+
+        return response()->json(['message' => 'Kayıt başarılı'], 201);
     }
 }
