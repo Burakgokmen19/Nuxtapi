@@ -4,30 +4,42 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\Fluent\Concerns\Has;
 use Nette\Schema\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function login(Request $request): void
     {
-        $request->validate([
-            'email'=>'required|email',
-            'password'=>'required'
-        ]);
-        $user = \App\Models\User::where('email',$request->email)->first();
-        if (!$user) {
-            throw  ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.']
-            ]);
+
+        if (auth()->attempt($request->only('email','password'))) {
+            throw new AuthenticationException();
         }
-        $token = $user->createToken('api-token')->plainTextToken;
-        return response()->json([
-            'token'=>$token
-        ]);
+
+//        $request->validate([
+//            'email' => 'required|email',
+//            'password' => 'required',
+//        ]);
+//
+//        $userData = $request->only('email', 'password');
+//
+//        if (Auth::attempt($userData)) {
+//            $user = Auth::user();
+//            return response()->json([
+//                'data' => $request->user(),
+//            ]);
+//        }
+//        return response()->json(['message' => 'kullanıcı yok'], 401);
     }
+
     public function register(Request $request)
     {
 
@@ -38,11 +50,10 @@ class AuthController extends Controller
 
 
         $user = new User;
-        $user->name = 'aynı'; // Burada kullanıcı adını istediğiniz bir değerle değiştirin
+        $user->name = 'aynı';
         $user->email = $request->input('email');
         $user->password = Hash::make($request->input('password'));
         $user->save();
-
 
 
         return response()->json(['message' => 'Kayıt başarılı'], 201);
