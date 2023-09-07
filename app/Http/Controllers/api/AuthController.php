@@ -14,30 +14,25 @@ use Nette\Schema\ValidationException;
 class AuthController extends Controller
 {
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function login(Request $request): void
+
+    public function login(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Contracts\Auth\Authenticatable|null
     {
 
-        if (auth()->attempt($request->only('email','password'))) {
-            throw new AuthenticationException();
-        }
-
-//        $request->validate([
-//            'email' => 'required|email',
-//            'password' => 'required',
-//        ]);
-//
-//        $userData = $request->only('email', 'password');
-//
-//        if (Auth::attempt($userData)) {
-//            $user = Auth::user();
-//            return response()->json([
-//                'data' => $request->user(),
-//            ]);
+//        if (auth()->attempt($request->only('email','password'))) {
+//            throw new AuthenticationException();
 //        }
-//        return response()->json(['message' => 'kullanıcı yok'], 401);
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $userData = $request->only('email', 'password');
+
+        if (Auth::attempt($userData)) {
+            return Auth::user();
+        }
+        return response()->json(['message' => 'kullanıcı yok'], 401);
     }
 
     public function register(Request $request)

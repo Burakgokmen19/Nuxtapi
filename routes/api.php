@@ -20,14 +20,18 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //
 //});
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register',[AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('register',[AuthController::class, 'register']);
+
+Route::get('user', function (Request $request){
+    return auth()->user();
+});
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/user', function (Request $request){
-        $request->user();
+    Route::get('user', function (Request $request){
+        return auth()->user();
     });
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('dashboard', [DashboardController::class, 'index']);
 
 });
 
